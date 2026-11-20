@@ -146,7 +146,6 @@ ui <- function(request){
 
                         # Main area: plot, help text, selected-pests table
                         girafeOutput(outputId = "pest_plot", height = "auto"),
-                        helpText("Hover over points to see pest details. Click points to select them (hold Shift for multiple). Selected pests appear in the table below."),
                         tags$hr(),
                         h4(strong("Selected pests")),
                         helpText("Click points on the plot to see their details here. Shift+Click to select multiple pests."),
