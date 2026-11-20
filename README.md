@@ -32,4 +32,5 @@ Set `db_file` in `global.R` to point to your copy of the database, e.g. `data/fi
 ## References
 
 - Heikkilä J, Tuomola J, Pouta E & Hannunen S (2016) FinnPRIO: a model for ranking invasive plant pests based on risk. *Biological Invasions* 18: 1827–1842. [doi:10.1007/s10530-016-1123-4](https://doi.org/10.1007/s10530-016-1123-4)
+- Ruete A. FinnPRIO-Explorer-Adapted (source code). Greensway Digital AB. [github.com/Greensway-DigitalAB/FinnPRIO-Explorer-Adapted](https://github.com/Greensway-DigitalAB/FinnPRIO-Explorer-Adapted)
 - See the app's *About the app* tab for the full reference list.
