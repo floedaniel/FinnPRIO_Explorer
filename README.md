@@ -6,6 +6,8 @@ Interactive Shiny app for exploring FinnPRIO risk assessments of non-native plan
 
 FinnPRIO Explorer Adapted presents results from FinnPRIO assessments made with the FinnPRIO model ([Heikkilä et al. 2016](https://doi.org/10.1007/s10530-016-1123-4)). It is a modified version of FinnPRIO-Explorer, developed by the Risk Assessment Unit of the Finnish Food Authority ([Marinova-Todorova et al. 2022](https://doi.org/10.5281/zenodo.7016771)).
 
+This repository builds on the work in [FinnPRIO-Explorer-Adapted](https://github.com/floedaniel/FinnPRIO-Explorer-Adapted).
+
 FinnPRIO ranks pests by the risk they pose to plant health across five sections: entry, establishment and spread, impact, preventability and controllability. Answer options define PERT distributions, and section scores are simulated with Monte Carlo (50,000 iterations), so every score comes with its uncertainty.
 
 ## Features
