@@ -74,7 +74,7 @@ function(input, output, session) {
     })
 
     ui <- tagList(
-      h4(strong("Threatened Sectors"), style = "color:#7C6A56"),
+      h4(strong("Threatened Sectors")),
       group_ui,
       # Toggle for showing pests with missing threatened sectors
       checkboxInput(
@@ -452,7 +452,7 @@ function(input, output, session) {
         opts_hover_inv(css = "opacity:0.15;"),
         opts_selection(
           type = "multiple",
-          css = "fill:red;stroke:black;stroke-width:2px;"
+          css = "stroke:#2160D6;stroke-width:3px;"  # VKM accent outline; keeps the data colour
         ),
         opts_tooltip(
           css = "background-color:white;padding:10px;border-radius:5px;box-shadow:0 0 10px rgba(0,0,0,0.5);",
@@ -864,7 +864,7 @@ function(input, output, session) {
         
         ###Adds color to the table header:
         "function(settings, json) {",
-        "$(this.api().table().header()).css({'background-color': '#343841', 'color': '#fff'});",
+        "$(this.api().table().header()).css({'background-color': '#F7F7F7', 'color': '#2B2F36'});",
         "}"),
         
         columnDefs = list(list(className = 'dt-right', targets = 1), list(targets = 
@@ -897,7 +897,7 @@ function(input, output, session) {
                   "Question",
                   target = 'row',
                   backgroundColor = styleEqual(c("Pathway 1","Pathway 2", "Pathway 3", "Pathway 4", "Pathway 5"), 
-                                               c("#CEB888", "#CEB888", "#CEB888", "#CEB888", "#CEB888")),
+                                               rep("#E3E6EA", 5)),
                   fontWeight = styleEqual(c("Pathway 1", "Pathway 2", "Pathway 3", "Pathway 4", "Pathway 5"),
                                           c('bold', 'bold', 'bold', 'bold', 'bold')),
                   fontSize = styleEqual(c("Pathway 1", "Pathway 2", "Pathway 3", "Pathway 4", "Pathway 5"), c(14, 14, 14, 14, 14)))
@@ -913,7 +913,7 @@ function(input, output, session) {
     if (input$Codes == "ENT") {
       
       wellPanel(
-        tags$h4(strong("Help for ENT questions"), style="color:#7C6A56"),
+        tags$h4(strong("Help for ENT questions")),
         
         help_pw(),
         tags$p ("ENT2A & ENT2B"),

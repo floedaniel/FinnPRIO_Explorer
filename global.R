@@ -197,6 +197,7 @@ safe_source <- function(file_path, description = NULL) {
 # Load custom scripts
 safe_source("R/constants.R", "color constants")
 safe_source("R/functions.R", "helper functions")
+safe_source("R/theme.R", "VKM theme (shared with kg_viewer)")
 safe_source("R/transform_db_into_explorer.R", "data transformation")
 
 # Verify critical data structures were created

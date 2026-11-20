@@ -2,35 +2,37 @@
 
 ui <- function(request){
   
-  navbarPage("FinnPRIO Explorer VKM",
-             theme = shinythemes::shinytheme("sandstone"),
+  navbarPage(
+             # White VKM header (as in kg_viewer): logo | hairline | app title, tabs to the right
+             title = tags$span(class = "vkm-brand",
+                               tags$img(src = "vkm_logo.svg", class = "vkm-logo",
+                                        alt = "VKM – Vitenskapskomiteen for mat og miljø"),
+                               tags$span(class = "vkm-sep"),
+                               tags$span(class = "vkm-t", "FinnPRIO Explorer")),
+             windowTitle = "FinnPRIO Explorer VKM",
+             # Shared VKM / FinnPRIO look (R/theme.R, copied from kg_viewer) + Explorer-specific bits
+             # Font sizes kept as in the old theme (14px base, 18px h4) so the layout doesn't change
+             theme = hm_theme(`font-size-base` = "0.875rem",
+                              `h4-font-size` = "1.2857rem", `h3-font-size` = "1.7143rem", `h5-font-size` = "1rem") |> bslib::bs_add_rules("
+               .navbar { background: #FFFFFF !important; border-bottom: 1px solid #E3E6EA; padding: 8px 12px; }
+               .navbar-brand { display: flex; align-items: center; }
+               .vkm-brand { display: flex; align-items: center; gap: 14px; }
+               .vkm-brand .vkm-logo { height: 38px; }
+               .vkm-brand .vkm-sep { display: inline-block; width: 1px; height: 30px; background: #E3E6EA; }
+               .navbar .nav-link { color: #6B7280 !important; }
+               .navbar .nav-link:hover { color: #2B2F36 !important; }
+               .navbar .nav-link.active { color: #2160D6 !important; font-weight: 600; }
+               .vkm-footer { margin-top: 30px; }
+               #download, #download_risk { white-space: nowrap; font-size: 0.8rem; padding: 4px 8px; }
+               .well { background: #F7F7F7; border: 1px solid #E3E6EA; box-shadow: none; }
+             "),
              header = tagList(
-               # Initialize shinyjs
-               # useShinyjs(),
                tags$head(
-                 tags$link(rel = "shortcut icon", href = "./img/bug-slash-solid-full-gray.svg"),
-                 # Footer with VKM logo + contact (same as kg_viewer)
-                 tags$style(HTML("
-                   .vkm-footer { display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
-                                 margin-top: 30px; padding: 14px 24px; background: #FFFFFF;
-                                 border-top: 1px solid #E3E6EA; font-size: 13px; color: #6B7280; }
-                   .vkm-footer img { height: 36px; width: auto; display: block; }
-                   .vkm-footer .vkm-sep { width: 1px; height: 30px; background: #E3E6EA; }
-                   @media (max-width: 768px) { .vkm-footer .vkm-sep { display: none; } }
-                 "))#,
-                 # Include our custom CSS
-                 # tags$link(rel = "stylesheet", href = "styles.css")
+                 tags$link(rel = "shortcut icon", href = "./img/bug-slash-solid-full-gray.svg")
                )
              ),
-             footer = div(class = "vkm-footer",
-               tags$a(href = "https://vkm.no", target = "_blank",
-                      tags$img(src = "img/vkm_logo.svg",
-                               alt = "VKM – Vitenskapskomiteen for mat og miljø")),
-               div(class = "vkm-sep"),
-               span("FinnPRIO Explorer VKM is part of the FinnPRIO project. Questions: Daniel Flø, ",
-                    tags$a(href = "mailto:Daniel.Flo@vkm.no", "Daniel.Flo@vkm.no"))
-             ),
-             tabPanel("1. Plot pests on a graph",
+             footer = vkm_footer("FinnPRIO Explorer VKM"),
+             tabPanel("Plot pests on a graph",
                       
                       fluidPage(
                         
@@ -42,7 +44,7 @@ ui <- function(request){
                             h3(strong(style = "font-size:24px;","Selection criteria")),
                             
                             fluidRow(column(6,
-                                            tags$h4(strong("FinnPRIO sections to be plotted"), style = "color:#7C6A56"),
+                                            tags$h4(strong("FinnPRIO sections to be plotted")),
                                             
                                             ## Select variable for Y-axis:----
                                             selectizeInput("yaxis", 
@@ -63,7 +65,7 @@ ui <- function(request){
                                                            selected = "invasion_median"
                                             ),
                                             tags$hr(style="border-color: gray;"),
-                                            tags$h4(strong("Quarantine status"), style="color:#7C6A56"),
+                                            tags$h4(strong("Quarantine status")),
                                             
                                             ## Select pests' status according to the new EU Regulation:----
                                             checkboxGroupInput(inputId = "quarantine_status",
@@ -80,7 +82,7 @@ ui <- function(request){
                                             ),
 
                                             tags$hr(style="border-color: gray;"),
-                                            tags$h4(strong("Taxonomic group"), style="color:#7C6A56"),
+                                            tags$h4(strong("Taxonomic group")),
                                             
                                             ## Select pest taxonomic group:----
                                             checkboxGroupInput(inputId = "taxonomic_group",
@@ -93,7 +95,7 @@ ui <- function(request){
                             ),
                             
                             column(6, offset = 0,
-                                   tags$h4(strong("Presence in Europe"), style="color:#7C6A56"),
+                                   tags$h4(strong("Presence in Europe")),
                                    
                                    ## Select pest presence in Europe: ----
                                    checkboxGroupInput(inputId = "presence_in_europe",
@@ -107,18 +109,18 @@ ui <- function(request){
                                    tags$hr(style="border-color: gray;"),
                                    ## Select threatened sectors: ----
                                    uiOutput("threat_checkboxes"),
-                                   # tags$h4(strong("Threatened sector"), style="color:#7C6A56"),
+                                   # tags$h4(strong("Threatened sector")),
                             
                             )),
                             
                             tags$hr(style="border-color: gray;"),
-                            tags$h4(strong("Determine the pests shown on the plot based on"), style="color:#7C6A56"),
+                            tags$h4(strong("Determine the pests shown on the plot based on")),
                             fluidRow(
                               column(3,
                                      tags$br(),
                                      tags$h5(strong("Entry score")),
                                      tags$br(),
-                                     tags$h5(strong("Establishment and spread score")),
+                                     tags$h5(strong("Establish­ment and spread score")),  # ­ = soft hyphen: breaks as "Establish-ment"
                                      tags$br(),
                                      tags$h5(strong("Invasion score")),
                                      tags$br(),
@@ -267,7 +269,7 @@ ui <- function(request){
 
                       )
              ),
-             tabPanel("2. Show pests in data table",
+             tabPanel("Show pests in data table",
                       tabsetPanel(id = "all_assessments",
                                   tabPanel(#id = "all_assessments", 
                                     title = tagList(icon("laptop-file", class = "fas"), "Assessments based on Median"),
@@ -285,7 +287,7 @@ ui <- function(request){
                                   
                       )
              ),
-             tabPanel("3. Risk rank Plot",
+             tabPanel("Risk rank plot",
                       fluidPage(
                         fluidRow(
                           column(9,
@@ -313,7 +315,7 @@ ui <- function(request){
                         )
                       )
              ),
-             tabPanel("4. Compare pests by questions",
+             tabPanel("Compare pests by questions",
                       fluidPage(
                         fluidRow(
                           column(3,
@@ -356,7 +358,7 @@ ui <- function(request){
              ),
              
              # tabPanel("4. Rank pests",
-             #          tags$h4(strong("Ranking of the pests based on stochastic dominance and hypervolume"), style="color:#7C6A56"),
+             #          tags$h4(strong("Ranking of the pests based on stochastic dominance and hypervolume")),
              #          radioButtons(inputId = "switch_tree",
              #                       label = NULL,
              #                       choices = c("Entry" = 1, 
@@ -438,7 +440,7 @@ ui <- function(request){
                                                  "Questions about the app or the assessments: Daniel Flø, Norwegian Scientific Committee for Food and Environment (VKM),",
                                                  tags$a("Daniel.Flo@vkm.no", href = "mailto:Daniel.Flo@vkm.no", .noWS = "after"), "."),
                                           tags$a(href = "https://vkm.no", target = "_blank",
-                                                 tags$img(src = "img/vkm_logo.svg", style = "height:40px; width:auto;",
+                                                 tags$img(src = "vkm_logo.svg", style = "height:40px; width:auto;",
                                                           alt = "VKM – Vitenskapskomiteen for mat og miljø"))
                                           # tags$br(),
                                           # tags$b("Ranking FinnPRIO assessments using the hypervolume approach"),
