@@ -295,7 +295,7 @@ function(input, output, session) {
       scale_x_continuous(limits = c(0, 1), oob = scales::oob_keep) +
       scale_y_continuous(limits = c(0, 1), oob = scales::oob_keep) +
       labs(
-        caption = paste("    The dots indicate the simulated median score, and the whiskers show the 5th and the 95th percentiles of the distribution of the scores.
+        subtitle = paste("    The dots indicate the simulated median score, and the whiskers show the 5th and the 95th percentiles of the distribution of the scores.
                          \n    Number of pests: ", nrow(selected_status())), #selected_status1()
         color = color_label
       ) +
@@ -307,8 +307,8 @@ function(input, output, session) {
             axis.title = element_text(size=14,face="bold")) +
       #### Size of the plot title:
       theme(plot.title = element_text(size=16,hjust=0.5, vjust=0.25, face="bold")) +
-      #### Size of the caption that shows number of pests:
-      theme(plot.caption = element_text(size=10, hjust=0, face="bold"), plot.caption.position = "plot") +
+      #### Text above the plot (explanation + number of pests):
+      theme(plot.subtitle = element_text(size=10, hjust=0, face="bold"), plot.title.position = "plot") +
       theme(axis.title.x=element_text(vjust=-1))+
       theme(axis.title.y=element_text(vjust=1))+
       guides(colour = guide_legend(nrow = 2)) +

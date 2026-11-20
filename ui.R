@@ -139,8 +139,7 @@ ui <- function(request){
                                      ),
                                      tags$br(),
                                      column(12,
-                                            helpText("Hover over points to see pest details. Click points to select them (hold Shift for multiple). Selected pests appear in the table below.",
-                                                     "Note: Selection works only for the 'Single plot' option.")
+                                            helpText("Hover over points to see pest details. Click points to select them (hold Shift for multiple). Selected pests appear in the table below.")
                                      )
                               ),
 
