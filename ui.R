@@ -8,10 +8,27 @@ ui <- function(request){
                # Initialize shinyjs
                # useShinyjs(),
                tags$head(
-                 tags$link(rel = "shortcut icon", href = "./img/bug-slash-solid-full-gray.svg")#,
+                 tags$link(rel = "shortcut icon", href = "./img/bug-slash-solid-full-gray.svg"),
+                 # Footer with VKM logo + contact (same as kg_viewer)
+                 tags$style(HTML("
+                   .vkm-footer { display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+                                 margin-top: 30px; padding: 14px 24px; background: #FFFFFF;
+                                 border-top: 1px solid #E3E6EA; font-size: 13px; color: #6B7280; }
+                   .vkm-footer img { height: 36px; width: auto; display: block; }
+                   .vkm-footer .vkm-sep { width: 1px; height: 30px; background: #E3E6EA; }
+                   @media (max-width: 768px) { .vkm-footer .vkm-sep { display: none; } }
+                 "))#,
                  # Include our custom CSS
                  # tags$link(rel = "stylesheet", href = "styles.css")
                )
+             ),
+             footer = div(class = "vkm-footer",
+               tags$a(href = "https://vkm.no", target = "_blank",
+                      tags$img(src = "img/vkm_logo.svg",
+                               alt = "VKM – Vitenskapskomiteen for mat og miljø")),
+               div(class = "vkm-sep"),
+               span("FinnPRIO Explorer VKM is part of the FinnPRIO project. Questions: Daniel Flø, ",
+                    tags$a(href = "mailto:Daniel.Flo@vkm.no", "Daniel.Flo@vkm.no"))
              ),
              tabPanel("1. Plot pests on a graph",
                       
@@ -365,16 +382,20 @@ ui <- function(request){
                                       wellPanel( 
                                         p(tags$p(
                                           tags$b(style = "font-size:13px;",
-                                                 "FinnPRIO Explorer Adapted presents results from FinnPRIO assessments conducted for Sweden made with the FinnPRIO model", 
-                                                 tags$a("(Heikkila et al. 2016)",href="https://doi.org/10.1007/s10530-016-1123-4", target="_blank"),
-                                                 ". It is a modified version of the original app FinnPRIO-Explorer developed in the Risk Assessment Unit of the Finnish Food Authority.",
-                                                 tags$a("(Marinova-Todorova et al. 2022)",href="https://finnprio-explorer.2.rahtiapp.fi/", target="_blank"))),
+                                                 "FinnPRIO Explorer VKM presents results from FinnPRIO assessments conducted for Norway by the Norwegian Scientific Committee for Food and Environment",
+                                                 tags$a("(VKM)", href="https://vkm.no", target="_blank", .noWS = "after"),
+                                                 ", made with the FinnPRIO model",
+                                                 tags$a("(Heikkila et al. 2016)",href="https://doi.org/10.1007/s10530-016-1123-4", target="_blank", .noWS = "after"),
+                                                 ". It builds on",
+                                                 tags$a("FinnPRIO-Explorer Adapted", href="https://github.com/Greensway-DigitalAB/FinnPRIO-Explorer-Adapted", target="_blank", .noWS = "after"),
+                                                 ", a modified version of the original app FinnPRIO-Explorer developed in the Risk Assessment Unit of the Finnish Food Authority",
+                                                 tags$a("(Marinova-Todorova et al. 2022)",href="https://finnprio-explorer.2.rahtiapp.fi/", target="_blank", .noWS = "after"), ".")),
                                           tags$br(),
                                           tags$b("FinnPRIO model"),
                                           tags$p(),
                                           tags$p(style = "font-size:13px;",
                                                  "FinnPRIO is a model for ranking non-native plant pests based on the risk that they pose to plant health", 
-                                                 tags$a("(Heikkila et al. 2016)",href="https://doi.org/10.1007/s10530-016-1123-4", target="_blank"),". 
+                                                 tags$a("(Heikkila et al. 2016)",href="https://doi.org/10.1007/s10530-016-1123-4", target="_blank", .noWS = "after"),". 
                                                  It is composed of five sections: likelihood of entry, likelihood of establishment and spread, magnitude of 
                                                  impacts, preventability, and controllability. The score describing the likelihood of invasion is a product 
                                                  of entry and establishment scores. The score describing the manageability of invasion is the minimum of 
@@ -395,16 +416,30 @@ ui <- function(request){
                                                  scores not only as median values but also as mean values. The uncertainty is displayed by showing the 5th percentile 
                                                  and the 95th percentile."),
                                           tags$br(),
-                                          tags$b("FinnPRIO assessments for Sweden"),
+                                          tags$b("FinnPRIO assessments for Norway"),
                                           tags$p(),
                                           tags$p(style = "font-size:13px;",
-                                                 "The results presented in this app are based on all FinnPRIO assessments done for Sweden and the calculations 
-                                                 were done using the FinnPRIO-Assessor app", 
-                                                 tags$a("(ZENODO)",href="https://doi.org/10.5281/zenodo.17816319", target="_blank")),
+                                                 "The results presented in this app are based on the FinnPRIO assessments done for Norway by",
+                                                 tags$a("VKM", href="https://vkm.no", target="_blank"),
+                                                 "and the calculations were done using the FinnPRIO-Assessor app",
+                                                 tags$a("(ZENODO)",href="https://doi.org/10.5281/zenodo.17816319", target="_blank", .noWS = "after"),
+                                                 ". The assessment is described in the VKM report",
+                                                 tags$a("Risk ranking of plant pests",
+                                                        href="https://vkm.no/english/riskassessments/allpublications/riskrankingplantpestsassessmentfindslowoverallrisk.4.5f5d6e1c19c1e6691c85d8f.html",
+                                                        target="_blank", .noWS = "after"), "."),
                                           tags$p(),
                                           tags$p(style = "font-size:13px;",
-                                                 "The probability distributions of the scores were simulated with 50 000 iterations. The likelihood of entry 
-                                                 is assessed taking into account the current management measures.")
+                                                 "The probability distributions of the scores were simulated with 50 000 iterations. The likelihood of entry
+                                                 is assessed taking into account the current management measures."),
+                                          tags$br(),
+                                          tags$b("Contact"),
+                                          tags$p(),
+                                          tags$p(style = "font-size:13px;",
+                                                 "Questions about the app or the assessments: Daniel Flø, Norwegian Scientific Committee for Food and Environment (VKM),",
+                                                 tags$a("Daniel.Flo@vkm.no", href = "mailto:Daniel.Flo@vkm.no", .noWS = "after"), "."),
+                                          tags$a(href = "https://vkm.no", target = "_blank",
+                                                 tags$img(src = "img/vkm_logo.svg", style = "height:40px; width:auto;",
+                                                          alt = "VKM – Vitenskapskomiteen for mat og miljø"))
                                           # tags$br(),
                                           # tags$b("Ranking FinnPRIO assessments using the hypervolume approach"),
                                           # tags$p(),

@@ -397,31 +397,31 @@ function(input, output, session) {
       yv  <- sym(input$yaxis)
       cap <- 0.005  # half of the old errorbar width = 0.01
       p <- p +
-        geom_segment_interactive(aes(x = !!lo, xend = !!hi, yend = !!yv, data_id = data_id)) +
-        geom_segment_interactive(aes(x = !!lo, xend = !!lo, y = !!yv - cap, yend = !!yv + cap, data_id = data_id)) +
-        geom_segment_interactive(aes(x = !!hi, xend = !!hi, y = !!yv - cap, yend = !!yv + cap, data_id = data_id))
+        geom_segment_interactive(aes(x = !!lo, xend = !!hi, yend = !!yv, data_id = data_id, tooltip = tooltip_text)) +
+        geom_segment_interactive(aes(x = !!lo, xend = !!lo, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text)) +
+        geom_segment_interactive(aes(x = !!hi, xend = !!hi, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text))
     }
     
     
     ## Display error bars from 5th and 95th percentile when select checkbox for Y: ----
     p <- p + 
       {if(input$whiskers_for_y && input$yaxis == "impact_median") 
-        geom_errorbar_interactive(aes(data_id = data_id, ymax = impact_95perc, 
+        geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = impact_95perc, 
                           ymin = impact_5perc),  
                       width = 0.01)
         
         else if(input$whiskers_for_y && input$yaxis == "invasion_median") 
-          geom_errorbar_interactive(aes(data_id = data_id, ymax = invasion_95perc, 
+          geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = invasion_95perc, 
                             ymin = invasion_5perc),  
                         width = 0.01)
         
         else if(input$whiskers_for_y && input$yaxis == "establishment_and_spread_median") 
-          geom_errorbar_interactive(aes(data_id = data_id, ymax = establishment_and_spread_95perc, 
+          geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = establishment_and_spread_95perc, 
                             ymin = establishment_and_spread_5perc),  
                         width = 0.01)
         
         else if(input$whiskers_for_y && input$yaxis == "entry_median") 
-          geom_errorbar_interactive(aes(data_id = data_id, ymax = entry_95perc, 
+          geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = entry_95perc, 
                             ymin = entry_5perc),  
                         width = 0.01)}  
     p
