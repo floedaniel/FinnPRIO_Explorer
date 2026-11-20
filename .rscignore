@@ -1,0 +1,9 @@
+renv.lock
+renv/
+.Rprofile
+.claude/
+CLAUDE.md
+push_to_shinyapps.io.r
+README.md
+DiagramFinnPrio_DB.png
+_ul
