@@ -12,7 +12,10 @@ v <- numeric_version("1.0.0")
 # Before deploying: copy the latest finnprio_master.db into the data/ subfolder.
 #db_file <- "data/finnprio_master.db"
 
-db_file <- "C:/Dev/FinnPrio/FinnPRIO_development/databases/master_database/finnprio_master_v2_2026-11-20.db"
+# Locally: use the master database directly. Deployed (Posit Connect Cloud / shinyapps.io):
+# that path doesn't exist, so fall back to the copy bundled in data/.
+db_file_local <- "C:/Dev/FinnPrio/FinnPRIO_development/databases/master_database/finnprio_master_v2_2026-11-20.db"
+db_file <- if (file.exists(db_file_local)) db_file_local else "data/finnprio_master.db"
             
 # ==============================================================================
 # LOAD REQUIRED PACKAGES
