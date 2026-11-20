@@ -25,6 +25,8 @@ ui <- function(request){
                .vkm-footer { margin-top: 30px; }
                #download, #download_risk { white-space: nowrap; font-size: 0.8rem; padding: 4px 8px; }
                .well { background: #F7F7F7; border: 1px solid #E3E6EA; box-shadow: none; }
+               /* plot fills the width but never gets taller than the screen */
+               #pest_plot svg { max-height: calc(100vh - 110px); }
              "),
              header = tagList(
                tags$head(
@@ -33,240 +35,123 @@ ui <- function(request){
              ),
              footer = vkm_footer("FinnPRIO Explorer VKM"),
              tabPanel("Plot pests on a graph",
-                      
-                      fluidPage(
-                        
-                        sidebarLayout(
-                          
-                          # Sidebar with inputs: ----
-                          sidebarPanel(
-                            
-                            h3(strong(style = "font-size:24px;","Selection criteria")),
-                            
-                            fluidRow(column(6,
-                                            tags$h4(strong("FinnPRIO sections to be plotted")),
-                                            
-                                            ## Select variable for Y-axis:----
-                                            selectizeInput("yaxis", 
-                                                           label = "y-axis",
-                                                           choices = c("Entry" = "entry_median",
-                                                                       "Establishment and spread" = "establishment_and_spread_median",
-                                                                       "Invasion" = "invasion_median",
-                                                                       "Impact" = "impact_median"),
-                                                           selected = "impact_median"
-                                            ),
-                                            ## Select variable for X-axis:----
-                                            selectizeInput("xaxis", 
-                                                           label = "x-axis",
-                                                           choices = c("Entry" = "entry_median",
-                                                                       "Establishment and spread" = "establishment_and_spread_median",
-                                                                       "Invasion" = "invasion_median",
-                                                                       "Impact" = "impact_median"),
-                                                           selected = "invasion_median"
-                                            ),
-                                            tags$hr(style="border-color: gray;"),
-                                            tags$h4(strong("Quarantine status")),
-                                            
-                                            ## Select pests' status according to the new EU Regulation:----
-                                            checkboxGroupInput(inputId = "quarantine_status",
-                                                               label = NULL,
-                                                               choices = quaran$name,
-                                                               selected = quaran$name,
-                                                               inline = FALSE
-                                            ),
+                      # One sidebar (collapsible sections) + plot filling the rest, as in kg_viewer.
+                      # All input IDs are unchanged, so server.R logic is untouched.
+                      bslib::layout_sidebar(
+                        fillable = FALSE,
+                        sidebar = bslib::sidebar(
+                          width = 340, open = "desktop",
+                          bslib::accordion(
+                            multiple = TRUE,
+                            open = c("Axes", "Display"),
 
-                                            ## Toggle for showing pests with missing quarantine status:----
-                                            checkboxInput(inputId = "show_na_quarantine",
-                                                         label = "Show pests with missing quarantine status",
-                                                         value = TRUE
-                                            ),
-
-                                            tags$hr(style="border-color: gray;"),
-                                            tags$h4(strong("Taxonomic group")),
-                                            
-                                            ## Select pest taxonomic group:----
-                                            checkboxGroupInput(inputId = "taxonomic_group",
-                                                               label = NULL,
-                                                               choices = taxa$name,
-                                                               selected = taxa$name,
-                                                               inline = FALSE
-                                            ),
-                                            
+                            bslib::accordion_panel("Axes",
+                              selectizeInput("yaxis",
+                                             label = "y-axis",
+                                             choices = c("Entry" = "entry_median",
+                                                         "Establishment and spread" = "establishment_and_spread_median",
+                                                         "Invasion" = "invasion_median",
+                                                         "Impact" = "impact_median"),
+                                             selected = "impact_median"),
+                              selectizeInput("xaxis",
+                                             label = "x-axis",
+                                             choices = c("Entry" = "entry_median",
+                                                         "Establishment and spread" = "establishment_and_spread_median",
+                                                         "Invasion" = "invasion_median",
+                                                         "Impact" = "impact_median"),
+                                             selected = "invasion_median")
                             ),
-                            
-                            column(6, offset = 0,
-                                   tags$h4(strong("Presence in Europe")),
-                                   
-                                   ## Select pest presence in Europe: ----
-                                   checkboxGroupInput(inputId = "presence_in_europe",
-                                                      label = NULL, 
-                                                      choices = c("Present" = TRUE,
-                                                                  "Absent" = FALSE),
-                                                      selected = c(TRUE, FALSE),
-                                                      inline = FALSE
-                                   ),
-                                   
-                                   tags$hr(style="border-color: gray;"),
-                                   ## Select threatened sectors: ----
-                                   uiOutput("threat_checkboxes"),
-                                   # tags$h4(strong("Threatened sector")),
-                            
-                            )),
-                            
-                            tags$hr(style="border-color: gray;"),
-                            tags$h4(strong("Determine the pests shown on the plot based on")),
-                            fluidRow(
-                              column(3,
-                                     tags$br(),
-                                     tags$h5(strong("Entry score")),
-                                     tags$br(),
-                                     tags$h5(strong("Establish­ment and spread score")),  # ­ = soft hyphen: breaks as "Establish-ment"
-                                     tags$br(),
-                                     tags$h5(strong("Invasion score")),
-                                     tags$br(),
-                                     tags$h5(strong("Impact score")),
-                                     
-                              ),
-                              
-                              column(9,
-                                     ## Scores selections----
-                                     sliderInput(inputId = "entry_score", 
-                                                 label = NULL,
-                                                 min = 0, max = 1, value = c(0,1), step = 0.05, width = "350px"),
-                                     
-                                     sliderInput(inputId = "establishment_score", 
-                                                 label = NULL,
-                                                 min = 0, max = 1, value = c(0,1), step = 0.05, width = "350px"),
-                                     
-                                     sliderInput(inputId = "invasion_score", 
-                                                 label = NULL,
-                                                 min = 0, max = 1, value = c(0,1), step = 0.05, width = "350px"),
-                                     sliderInput(inputId = "impact_score", 
-                                                 label = NULL,
-                                                 min = 0, max = 1, value = c(0,1), step = 0.05, width = "350px"),
-                              ))
-                          ),
-                          
-                          # Main panel with the results after selections: -----
-                          mainPanel(
-                            fluidRow(
-                              column(10,
-                                     tags$br(),
-                                     ## Display an interactive plot that presents Invasion vs. Impact: --
-                                     girafeOutput(outputId = "pest_plot",
-                                                  height = "750px"
-                                     ),
-                                     tags$br(),
-                                     column(12,
-                                            helpText("Hover over points to see pest details. Click points to select them (hold Shift for multiple). Selected pests appear in the table below.")
-                                     )
-                              ),
 
-                              column(2,
-                                     wellPanel(
-                                       tags$h4(strong("Show")),
-                                       # Color by selection:
-                                       selectInput(inputId = "color_by",
-                                                   label = "Color by",
-                                                   choices = c("Quarantine status" = "quarantine_status",
-                                                               "Taxonomic group" = "taxonomic_group",
-                                                               "Presence in Europe" = "presence_in_europe"),
-                                                   selected = "taxonomic_group",
-                                                   width = "auto"),
-                                       # Pests' names on the plot:
-                                       checkboxInput(inputId = "pest_name",
-                                                     label = "Pest names",
-                                                     value = FALSE,
-                                                     width = "auto"),
-                                       
-                                       # Error bars on the plot:
-                                       help_add(),
-                                       tags$h5(strong("Uncertainty")),
-                                       checkboxInput(inputId = "whiskers_for_y",
-                                                     label = "Whiskers for y",
-                                                     value = TRUE),
-                                       checkboxInput(inputId = "whiskers_for_x",
-                                                     label = "Whiskers for x",
-                                                     value = TRUE),
-                                       
-                                       help_threshold(), 
-                                       tags$h5(strong("Threshold line")),
-                                       fluidRow(
-                                         column(1,
-                                                tags$h5(strong("y")),
-                                                tags$br(),
-                                                tags$h5(strong("x"))
-                                                
-                                         ),
-                                         column(10,
-                                                # A threshold line for the impact on the plot:
-                                                numericInput(inputId ="threshold", 
-                                                             label=NULL, 
-                                                             value = 0,
-                                                             min = 0, max = 1, step = 0.05),
-                                                numericInput(inputId ="thresholdX", 
-                                                             label=NULL, 
-                                                             value = 0,
-                                                             min = 0, max = 1, step = 0.05),
-                                         ))
-                                     ),
-                                     
-                                     wellPanel(
-                                       help_plot_grid(),
-                                       #Number of plots:
-                                       radioButtons(inputId = "split_plott",
-                                                    label = "Number of plots",
-                                                    choices = c("Single plot" = 1, 
-                                                                "Multiple plots" = 2
-                                                    ), 
-                                                    selected = 1),
-                                       tags$h5(strong("Zoom by")),
-                                       fluidRow(
-                                         column(1,
-                                                tags$h5(strong("y")),
-                                                tags$br(),tags$br(),
-                                                tags$h5(strong("x"))
-                                         ),
-                                         column(10,
-                                                #Zoom the plot by x and y:
-                                                sliderInput(inputId="ylims",
-                                                            label=NULL, 
-                                                            min = 0, max = 1, value = c(0,1), step = 0.05),
-                                                sliderInput(inputId="xlims",
-                                                            label=NULL, 
-                                                            min = 0, max = 1, value = c(0,1), step = 0.05),
-                                         ))
-                                     ),
-                                     wellPanel(
-                                       fluidRow(
-                                         column(7,
-                                                #Download with options:
-                                                downloadButton(outputId = "download", 
-                                                               label = "Save Plot")
-                                         ),
-                                         column(5,offset = 0,
-                                                radioButtons(inputId = "extension", 
-                                                             label = NULL,
-                                                             choices = c("png", "pdf"), inline = FALSE)
-                                         )
-                                       )))
+                            bslib::accordion_panel("Quarantine status",
+                              checkboxGroupInput(inputId = "quarantine_status",
+                                                 label = NULL,
+                                                 choices = quaran$name,
+                                                 selected = quaran$name),
+                              checkboxInput(inputId = "show_na_quarantine",
+                                            label = "Show pests with missing quarantine status",
+                                            value = TRUE)
+                            ),
+
+                            bslib::accordion_panel("Taxonomic group",
+                              checkboxGroupInput(inputId = "taxonomic_group",
+                                                 label = NULL,
+                                                 choices = taxa$name,
+                                                 selected = taxa$name)
+                            ),
+
+                            bslib::accordion_panel("Presence in Europe",
+                              checkboxGroupInput(inputId = "presence_in_europe",
+                                                 label = NULL,
+                                                 choices = c("Present" = TRUE, "Absent" = FALSE),
+                                                 selected = c(TRUE, FALSE))
+                            ),
+
+                            bslib::accordion_panel("Threatened sectors",
+                              uiOutput("threat_checkboxes")
+                            ),
+
+                            bslib::accordion_panel("Score ranges",
+                              helpText("Show only pests whose median score is within these ranges."),
+                              sliderInput(inputId = "entry_score", label = "Entry score",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05),
+                              sliderInput(inputId = "establishment_score", label = "Establishment and spread score",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05),
+                              sliderInput(inputId = "invasion_score", label = "Invasion score",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05),
+                              sliderInput(inputId = "impact_score", label = "Impact score",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05)
+                            ),
+
+                            bslib::accordion_panel("Display",
+                              selectInput(inputId = "color_by",
+                                          label = "Color by",
+                                          choices = c("Quarantine status" = "quarantine_status",
+                                                      "Taxonomic group" = "taxonomic_group",
+                                                      "Presence in Europe" = "presence_in_europe"),
+                                          selected = "taxonomic_group"),
+                              checkboxInput(inputId = "pest_name", label = "Pest names", value = FALSE),
+                              help_add(),
+                              tags$h5(strong("Uncertainty")),
+                              checkboxInput(inputId = "whiskers_for_y", label = "Whiskers for y", value = TRUE),
+                              checkboxInput(inputId = "whiskers_for_x", label = "Whiskers for x", value = TRUE),
+                              help_threshold(),
+                              tags$h5(strong("Threshold line")),
+                              fluidRow(
+                                column(6, numericInput(inputId = "threshold", label = "y",
+                                                       value = 0, min = 0, max = 1, step = 0.05)),
+                                column(6, numericInput(inputId = "thresholdX", label = "x",
+                                                       value = 0, min = 0, max = 1, step = 0.05))
+                              ),
+                              help_plot_grid(),
+                              radioButtons(inputId = "split_plott",
+                                           label = "Number of plots",
+                                           choices = c("Single plot" = 1, "Multiple plots" = 2),
+                                           selected = 1)
+                            ),
+
+                            bslib::accordion_panel("Zoom",
+                              sliderInput(inputId = "ylims", label = "y-axis",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05),
+                              sliderInput(inputId = "xlims", label = "x-axis",
+                                          min = 0, max = 1, value = c(0,1), step = 0.05)
+                            ),
+
+                            bslib::accordion_panel("Save plot",
+                              radioButtons(inputId = "extension", label = NULL,
+                                           choices = c("png", "pdf"), inline = TRUE),
+                              downloadButton(outputId = "download", label = "Save plot")
                             )
-
                           )
                         ),
 
-                        # Table spanning full width below the plot
-                        tags$hr(style="border-color: gray;"),
-                        fluidRow(
-                          column(12,
-                                 h4(strong("Selected Pests Details")),
-                                 helpText("Click points on the plot to see their details here. Shift+Click to select multiple pests."),
-                                 helpText(tags$sup(1), "Note that the upper row of the table's header is not visible in the downloaded table."),
-                                 DT::dataTableOutput(outputId = "tableBrush")
-                          )
-                        ),
-                        tags$br()
-
+                        # Main area: plot, help text, selected-pests table
+                        girafeOutput(outputId = "pest_plot", height = "auto"),
+                        helpText("Hover over points to see pest details. Click points to select them (hold Shift for multiple). Selected pests appear in the table below."),
+                        tags$hr(),
+                        h4(strong("Selected pests")),
+                        helpText("Click points on the plot to see their details here. Shift+Click to select multiple pests."),
+                        helpText(tags$sup(1), "Note that the upper row of the table's header is not visible in the downloaded table."),
+                        DT::dataTableOutput(outputId = "tableBrush")
                       )
              ),
              tabPanel("Show pests in data table",

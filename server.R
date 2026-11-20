@@ -74,7 +74,6 @@ function(input, output, session) {
     })
 
     ui <- tagList(
-      h4(strong("Threatened Sectors")),
       group_ui,
       # Toggle for showing pests with missing threatened sectors
       checkboxInput(
@@ -85,6 +84,9 @@ function(input, output, session) {
     )
     return (ui)
   })
+  # The checkboxes sit in a collapsible sidebar section. Render them even while that
+  # section is closed, otherwise selected_status() (which needs them) never fires.
+  outputOptions(output, "threat_checkboxes", suspendWhenHidden = FALSE)
   
   ## Selection of threatened sector: ---- 
   ## https://dplyr.tidyverse.org/reference/filter_all.html
