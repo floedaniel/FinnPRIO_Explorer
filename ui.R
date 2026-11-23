@@ -43,7 +43,7 @@ ui <- function(request){
                           width = 340, open = "desktop",
                           bslib::accordion(
                             multiple = TRUE,
-                            open = c("Axes", "Display"),
+                            open = FALSE,  # all sections closed at launch
 
                             bslib::accordion_panel("Axes",
                               selectizeInput("yaxis",
