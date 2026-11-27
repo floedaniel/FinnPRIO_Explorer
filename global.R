@@ -14,7 +14,7 @@ v <- numeric_version("1.0.0")
 
 # Locally: use the master database directly. Deployed (Posit Connect Cloud / shinyapps.io):
 # that path doesn't exist, so fall back to the copy bundled in data/.
-db_file_local <- "C:/Dev/FinnPrio/FinnPRIO_development/databases/master_database/finnprio_master_v2_2026-11-20.db"
+db_file_local <- "C:/Dev/FinnPrio/FinnPRIO_development/databases/master_database/finnprio_master_v3_2026-11-24.db"
 db_file <- if (file.exists(db_file_local)) db_file_local else "data/finnprio_master.db"
             
 # ==============================================================================
