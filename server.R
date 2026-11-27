@@ -303,7 +303,7 @@ function(input, output, session) {
         geom_point(data = select(data, -color_value),
                    aes(x = !!sym(input$xaxis), y = !!sym(input$yaxis)),
                    inherit.aes = FALSE,
-                   colour = "grey", alpha = 0.7, size = 3)} +
+                   colour = "grey", alpha = 0.7 * fade, size = 3)} +
 
       # Use interactive geom with tooltip and data_id for selection
       geom_point_interactive(
@@ -397,8 +397,10 @@ function(input, output, session) {
     
     ## Display pests' names when select checkbox: ----
     p <- p +
-      {if(input$pest_name)    
-        geom_text_interactive(aes(label = pest, data_id = data_id, tooltip = tooltip_text),
+      {if(input$pest_name)
+        # Searched pests get their own boxed label (below), so skip them here
+        geom_text_interactive(data = filter(data, !is_searched),
+                  aes(label = pest, data_id = data_id, tooltip = tooltip_text),
                   size = 4,
                   vjust = -0.05,
                   hjust = -0.08,
