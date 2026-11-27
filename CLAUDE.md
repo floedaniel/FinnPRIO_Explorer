@@ -149,8 +149,8 @@ Quarantine status colors defined in `R/constants.R`:
 
 ### Dependencies
 Managed via `renv`:
-- R version: 4.5.0
-- 89 packages locked in `renv.lock`
+- R version: 4.5.3
+- 113 packages locked in `renv.lock`
 - Key packages: shiny, tidyverse, ggplot2, DT, RSQLite, gghighlight, treemapify
 - Always use `renv::restore()` before development
 - Use `renv::snapshot()` after adding new packages
