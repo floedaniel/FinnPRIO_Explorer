@@ -60,3 +60,8 @@ _ul
 
 # Assessment database - not published, supply locally
 data/*.db
+
+# Claude Code files - local only
+CLAUDE.md
+CLAUDE.local.md
+.claude/
