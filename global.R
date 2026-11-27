@@ -202,6 +202,7 @@ safe_source("R/constants.R", "color constants")
 safe_source("R/functions.R", "helper functions")
 safe_source("R/theme.R", "VKM theme (shared with kg_viewer)")
 safe_source("R/transform_db_into_explorer.R", "data transformation")
+safe_source("R/search.R", "pest search helpers")
 
 # Verify critical data structures were created
 cat("\nVerifying data structures... ")
