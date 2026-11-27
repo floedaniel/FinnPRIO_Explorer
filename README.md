@@ -13,6 +13,7 @@ FinnPRIO ranks pests by the risk they pose to plant health across five sections:
 ## Features
 
 - **Pest plot:** compare any two scores. Hover a pest to highlight it with its whiskers (5th–95th percentile) and label while the others dim. Click to select.
+- **Pest search:** find one or more pests by scientific name or EPPO code in the box at the top of the sidebar. Found pests get a large outlined point and a name label, and the rest fade. If the current filters hide a searched pest, a note under the box says so.
 - **Data tables:** median- and mean-based scores for all pests.
 - **Risk ranking:** all pests ranked by median risk score.
 - **Question comparison:** answers for two pests side by side.
@@ -26,6 +27,8 @@ Requires R 4.5 and the FinnPRIO SQLite database. The database is **not included*
 renv::restore()     # install the locked package versions
 shiny::runApp()     # launch the app
 ```
+
+Run the unit tests with `testthat::test_dir("tests/testthat")`.
 
 Set `db_file` in `global.R` to point to your copy of the database, e.g. `data/finnprio_master.db`.
 

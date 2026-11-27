@@ -30,6 +30,9 @@ renv::snapshot()
 # Check package status
 renv::status()
 
+# Run unit tests (from the project root)
+testthat::test_dir("tests/testthat")
+
 # Open RStudio project
 # Double-click FinnPRIO_Explorer_development.Rproj
 ```
@@ -47,6 +50,10 @@ renv::status()
 - `R/transform_db_into_explorer.R` - Main data transformation pipeline that creates `cleanfinnprioresults` dataframe
 - `R/functions.R` - Helper functions for DataTable headers and interactive help tooltips
 - `R/constants.R` - Color palette definitions for quarantine status visualization
+- `R/search.R` - Pest search helpers: `pest_search_choices()` (selectize choices labelled "pest [EPPO]"), `flag_searched()` (adds `is_searched`), `hidden_searched()` (searched pests removed by filters)
+
+**Tests:**
+- `tests/testthat/test-search.R` - Unit tests for `R/search.R` (no database needed)
 
 ### Data Sources
 
@@ -71,7 +78,7 @@ renv::status()
 
 ### UI Tabs Overview
 
-1. **Plot pests on a graph** - Interactive scatter plot with brush selection, extensive filters, zoom controls
+1. **Plot pests on a graph** - Interactive scatter plot with brush selection, extensive filters, zoom controls, and a pest search box (name or EPPO code) that highlights the chosen pests
 2. **Show pests in data table** - Two subtabs: median-based and mean-based DataTables with all scores
 3. **Risk rank Plot** - Horizontal scatter ranking all pests by risk median score
 4. **Compare pests by questions** - Side-by-side question/answer comparison for two selected pests
@@ -212,10 +219,18 @@ Managed via `renv`:
   - `safe_source()` function handles R script loading
   - All errors provide actionable guidance for users
 
+## Pest Search (2026-11-27)
+
+- **UI**: `selectizeInput("pest_search")` at the top of the plot-tab sidebar (above the accordion, so it is visible while the sections are closed), plus `uiOutput("search_hidden_note")`.
+- **Choices** come from `cleanfinnprioresults` (all pests). Values are pest names and labels are `"pest [EPPO]"`, so typing a name or an EPPO code both match.
+- **Highlight** (in `plot_output()`): when any pest is searched, `fade = 0.25` applies to points, whiskers and the split-mode grey context layer. Searched pests are redrawn on top as a large outlined point plus a white `geom_label_interactive` beside the point. The highlight layers reuse `data_id`, so hover and click selection work as before. The legend is kept at full alpha. Searched pests are left out of the "Pest names" text layer to avoid double labels. The highlight is included in PNG/PDF downloads.
+- **Filters are not overridden**: searched pests removed by filters are listed as "Hidden by current filters: ...".
+- **Known minor gaps**: the note doesn't account for the zoom range; long labels can be cut off in narrow split-mode panels; hovering a highlighted point enlarges it a lot.
+
 ## Known Limitations and TODOs
 
 - **Incomplete quarantine status data**: Most pests (59/62) missing quarantine status in database
-- **No automated testing**: Consider adding shinytest2 for UI tests and testthat for unit tests
+- **Limited automated testing**: testthat unit tests exist only for `R/search.R`; consider shinytest2 for UI tests (note: group policy on the dev machine blocks chromote/processx, so use `shiny::testServer` for server logic)
 - **No CI/CD**: Consider adding GitHub Actions for automated testing
 - **Hypervolume data unused**: `data/hv.csv` exists but hypervolume rankings not displayed
 - **No error handling**: Database connection failures not gracefully handled
