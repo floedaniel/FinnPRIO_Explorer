@@ -281,7 +281,12 @@ function(input, output, session) {
           input$yaxis, ": ", round(!!sym(input$yaxis), 3)
         ),
         data_id = row_number()  # Unique ID for selection
-      )
+      ) |>
+      flag_searched(input$pest_search)
+
+    # Pest search: when active, other pests fade and searched ones are redrawn on top
+    search_active <- any(data$is_searched)
+    fade <- if (search_active) 0.25 else 1  # alpha for points and whiskers
 
     split_mode <- identical(as.character(input$split_plott), "2")
 
@@ -303,7 +308,8 @@ function(input, output, session) {
       # Use interactive geom with tooltip and data_id for selection
       geom_point_interactive(
         aes(tooltip = tooltip_text, data_id = data_id),
-        size = 3
+        size = 3,
+        alpha = fade
       ) +
 
       # oob_keep: don't drop whisker caps that poke just outside [0,1] (e.g. pests with score 0)
@@ -326,7 +332,7 @@ function(input, output, session) {
       theme(plot.subtitle = element_text(size=10, hjust=0, face="bold"), plot.title.position = "plot") +
       theme(axis.title.x=element_text(vjust=-1))+
       theme(axis.title.y=element_text(vjust=1))+
-      guides(colour = guide_legend(nrow = 2)) +
+      guides(colour = guide_legend(nrow = 2, override.aes = list(alpha = 1))) +
       theme(legend.text = element_text(size=10),
             legend.direction = "horizontal",
             legend.position = "bottom") +
@@ -412,9 +418,9 @@ function(input, output, session) {
       yv  <- sym(input$yaxis)
       cap <- 0.005  # half of the old errorbar width = 0.01
       p <- p +
-        geom_segment_interactive(aes(x = !!lo, xend = !!hi, yend = !!yv, data_id = data_id, tooltip = tooltip_text)) +
-        geom_segment_interactive(aes(x = !!lo, xend = !!lo, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text)) +
-        geom_segment_interactive(aes(x = !!hi, xend = !!hi, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text))
+        geom_segment_interactive(aes(x = !!lo, xend = !!hi, yend = !!yv, data_id = data_id, tooltip = tooltip_text), alpha = fade) +
+        geom_segment_interactive(aes(x = !!lo, xend = !!lo, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text), alpha = fade) +
+        geom_segment_interactive(aes(x = !!hi, xend = !!hi, y = !!yv - cap, yend = !!yv + cap, data_id = data_id, tooltip = tooltip_text), alpha = fade)
     }
     
     
@@ -423,22 +429,45 @@ function(input, output, session) {
       {if(input$whiskers_for_y && input$yaxis == "impact_median") 
         geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = impact_95perc, 
                           ymin = impact_5perc),  
-                      width = 0.01)
+                      width = 0.01, alpha = fade)
         
         else if(input$whiskers_for_y && input$yaxis == "invasion_median") 
           geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = invasion_95perc, 
                             ymin = invasion_5perc),  
-                        width = 0.01)
+                        width = 0.01, alpha = fade)
         
         else if(input$whiskers_for_y && input$yaxis == "establishment_and_spread_median") 
           geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = establishment_and_spread_95perc, 
                             ymin = establishment_and_spread_5perc),  
-                        width = 0.01)
+                        width = 0.01, alpha = fade)
         
         else if(input$whiskers_for_y && input$yaxis == "entry_median") 
           geom_errorbar_interactive(aes(data_id = data_id, tooltip = tooltip_text, ymax = entry_95perc, 
-                            ymin = entry_5perc),  
-                        width = 0.01)}  
+                            ymin = entry_5perc),
+                        width = 0.01, alpha = fade)}
+
+    ## Highlight pests chosen in the search box (drawn last, on top of everything): ----
+    # Same data_id as the original point, so hover/click behave the same. hl keeps
+    # color_value, so in split mode it lands only in the pest's own facet.
+    if (search_active) {
+      # Label beside the point, on the side facing the plot centre, so labels of
+      # pests at the edges (many sit at x = 0) are not clipped.
+      hl <- filter(data, is_searched) |>
+        mutate(label_right = !!sym(input$xaxis) < mean(input$xlims),
+               label_x     = !!sym(input$xaxis) + ifelse(label_right, 1, -1) * 0.012 * diff(input$xlims),
+               label_hjust = ifelse(label_right, 0, 1))
+      p <- p +
+        geom_point_interactive(data = hl,
+                               aes(tooltip = tooltip_text, data_id = data_id, fill = color_value),
+                               shape = 21, size = 6, colour = "black", stroke = 1.5,
+                               show.legend = FALSE) +
+        scale_fill_manual(values = color_palette, na.value = "#CCCCCC", guide = "none") +
+        geom_label_interactive(data = hl,
+                               aes(x = label_x, label = pest, hjust = label_hjust,
+                                   tooltip = tooltip_text, data_id = data_id),
+                               colour = "black", fill = "white", size = 4, vjust = 0.5,
+                               show.legend = FALSE)
+    }
     p
   })
   
