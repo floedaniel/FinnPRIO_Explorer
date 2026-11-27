@@ -87,6 +87,19 @@ function(input, output, session) {
   # The checkboxes sit in a collapsible sidebar section. Render them even while that
   # section is closed, otherwise selected_status() (which needs them) never fires.
   outputOptions(output, "threat_checkboxes", suspendWhenHidden = FALSE)
+
+  ## Pest search: list searched pests that the current filters hide ----
+  output$search_hidden_note <- renderUI({
+    req(input$pest_search)
+    # While inputs are still initialising (req() fails) show nothing; if the filters
+    # fail validation (e.g. nothing ticked), nothing is plotted, so all are hidden.
+    visible <- tryCatch(selected_status()$pest,
+                        shiny.silent.error = function(e) req(FALSE),
+                        error = function(e) character(0))
+    hidden <- hidden_searched(input$pest_search, visible)
+    if (length(hidden) == 0) return(NULL)
+    helpText("Hidden by current filters: ", paste(hidden, collapse = ", "))
+  })
   
   ## Selection of threatened sector: ---- 
   ## https://dplyr.tidyverse.org/reference/filter_all.html

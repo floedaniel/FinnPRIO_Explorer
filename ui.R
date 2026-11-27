@@ -41,6 +41,14 @@ ui <- function(request){
                         fillable = FALSE,
                         sidebar = bslib::sidebar(
                           width = 340, open = "desktop",
+                          # Pest search: always visible above the (closed) accordion sections.
+                          selectizeInput("pest_search",
+                                         label = "Find pest (name or EPPO code)",
+                                         choices = pest_search_choices(cleanfinnprioresults),
+                                         multiple = TRUE,
+                                         options = list(placeholder = "Type a name or EPPO code…",
+                                                        plugins = list("remove_button"))),
+                          uiOutput("search_hidden_note"),
                           bslib::accordion(
                             multiple = TRUE,
                             open = FALSE,  # all sections closed at launch
